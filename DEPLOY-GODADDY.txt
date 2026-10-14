@@ -1,0 +1,30 @@
+GoDaddy Node.js / cPanel Deployment Guide — iConnect BLR
+
+1. Upload & Extract:
+   Upload and extract the project files into your GoDaddy Node.js application folder (the directory containing package.json).
+
+2. Node.js Runtime & Build:
+   - Select Node.js 20 or 22 in GoDaddy cPanel ("Setup Node.js App") or your VPS environment.
+   - Install dependencies:
+     npm install
+   - Build the production client & server bundle:
+     npm run build
+
+3. Startup File / Command:
+   - If using GoDaddy cPanel "Setup Node.js App" (Phusion Passenger):
+     Set "Application startup file" to: app.cjs
+   - If using PM2 / VPS / Docker:
+     Run: npm start (which runs `NODE_ENV=production node dist/index.js`)
+
+4. Environment Variables (add in GoDaddy Hosting Panel — never commit secrets):
+   NODE_ENV=production
+   JWT_SECRET=replace-with-a-long-random-secret
+   VITE_GOOGLE_CLIENT_ID=your-google-oauth-web-client-id.apps.googleusercontent.com
+   DATABASE_URL=mysql://DB_USER:DB_PASSWORD@DB_HOST:3306/DB_NAME   (Optional — automatically falls back to persistent local SQLite in .local/sqlite.db if omitted)
+
+5. Customer & Admin Routes:
+   - Customer Sign In:  https://yourdomain.com/signin
+   - Customer Sign Up:  https://yourdomain.com/signup
+   - Hidden Admin Page: https://yourdomain.com/admin
+     (Default Admin Credentials: admin@iconnectblr.com / admin12345)
+   - All SPA routes (/shop, /repair, /sell, /track, /signin, /signup, /admin) are handled automatically by the Express server fallback and reverse-proxy trust configuration.

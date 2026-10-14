@@ -1,0 +1,6 @@
+{
+  "name": "iConnect BLR",
+  "description": "Shop 32-point checked pre-owned iPhones, Androids & laptops, sell old phones for instant cash, or book express repairs across RT Nagar, Yeshwanthpur & Ganganagar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

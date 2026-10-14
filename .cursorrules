@@ -1,0 +1,30 @@
+# Cursor Rules — I CONNECT BLR (PatrickJS/awesome-cursorrules)
+
+You are an expert in TypeScript, Node.js, React 19, Vite, TanStack Query, tRPC, Express, Drizzle ORM, and Tailwind CSS.
+
+## Response & Editing Constraints
+- Do not remove existing working functionality unless necessary for the requested change.
+- Preserve existing imports, types, and formatting conventions.
+
+## Code Style & Structure
+- Write concise, technical TypeScript code with functional and declarative patterns; avoid classes.
+- Prefer iteration and modularization over code duplication (DRY).
+- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`, `isSubmitted`).
+- Structure files cleanly: exported components, subcomponents, helpers, static constants, and types.
+
+## TypeScript & React Conventions
+- Use TypeScript for all client (`client/src`), server (`server/`), and shared (`shared/`) code.
+- Use functional components with explicit TypeScript types/interfaces.
+- Use the `function` keyword for pure functions and top-level components.
+- Ensure every interactive element (`button`, `a`, `input`, `select`, clickable cards) has a working event handler and accessible keyboard/ARIA attributes (`aria-label`, `role`, `tabIndex`).
+
+## Data Fetching (tRPC & TanStack Query)
+- Use `trpc.*.useQuery` and `trpc.*.useMutation` hooks for client-server communication.
+- Invalidate relevant query caches via `trpc.useUtils()` after mutations.
+- Always provide clear loading, empty, and error states for asynchronous views.
+
+## UI, Styling & Performance Optimization
+- Maintain responsive layouts across 1440px desktop, tablet, and mobile viewports.
+- Use `loading="lazy"` and `referrerPolicy="no-referrer"` on non-critical images with fallback handlers (`onError`).
+- Animate only compositor-friendly properties (`transform`, `opacity`) for smooth 60fps interactions.
+- Replace magic numbers with named constants and keep functions focused on a single responsibility.
