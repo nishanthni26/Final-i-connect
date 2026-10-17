@@ -30,6 +30,24 @@ function clearSessionToken() {
   }
 }
 
+const WHATSAPP_PHONE = "917829439076";
+
+export const WHATSAPP_REPAIR_URL = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(
+  "Hi iConnect BLR Team! I would like to book a mobile repair service.\n\nMy device needs diagnosis/repair (screen / battery / charging / other).\n\nPlease let me know the nearest branch (RT Nagar / Yeshwanthpur / Ganganagar) and repair estimate."
+)}`;
+
+export const WHATSAPP_SELL_URL = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(
+  "Hi iConnect BLR Team! I want to sell/exchange my mobile phone for instant cash or upgrade valuation.\n\nCould you please share the best buyback offer for my device?"
+)}`;
+
+export function openWhatsAppRepair() {
+  window.open(WHATSAPP_REPAIR_URL, "_blank", "noopener,noreferrer");
+}
+
+export function openWhatsAppSell() {
+  window.open(WHATSAPP_SELL_URL, "_blank", "noopener,noreferrer");
+}
+
 const IMG = {
   hero: "https://files.manuscdn.com/search-media/310519663933648094/Et6LyycN5iP9ToYjJFtwzB/QnDuQcixwAeWSV4C6efJxb.jpg",
   repair: "https://files.manuscdn.com/search-media/310519663933648094/Et6LyycN5iP9ToYjJFtwzB/ocTx8St7QxHz87A3bhnbiB.jpg",
@@ -56,7 +74,7 @@ const reveal = { hidden: { opacity: 0, y: 22 }, show: { opacity: 1, y: 0, transi
 const stagger = { hidden: {}, show: { transition: { staggerChildren: .08 } } };
 
 type Drawer = "cart" | "login" | "sell" | "repair" | "checkout" | "product" | null;
-type Page = "home" | "shop" | "sell" | "repair" | "signin" | "signup" | "admin" | "track";
+type Page = "home" | "shop" | "sell" | "repair" | "signin" | "signup" | "admin";
 
 function resolvePageFromPath(pathname: string): Page {
   const clean = pathname.toLowerCase().replace(/\/+$/, "") || "/";
@@ -64,7 +82,7 @@ function resolvePageFromPath(pathname: string): Page {
   if (clean === "/sell") return "sell";
   if (clean === "/repair") return "repair";
   if (clean === "/admin") return "admin";
-  if (clean === "/track") return "track";
+  if (clean === "/track") return "signin";
   if (clean === "/signup" || clean === "/register") return "signup";
   if (clean === "/signin" || clean === "/login" || clean === "/auth" || clean === "/account" || clean === "/profile") return "signin";
   return "home";
@@ -146,12 +164,6 @@ function App() {
         description:
           "Book free same-day diagnosis and express screen, battery, and motherboard repairs in RT Nagar, Yeshwanthpur & Ganganagar with genuine parts.",
         robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-      },
-      track: {
-        title: "Track Order, Repair Ticket or Buyback Quote | iConnect BLR",
-        description:
-          "Check real-time status updates for your iConnect BLR device order, express repair ticket, or sell/exchange quote in Bengaluru.",
-        robots: "index, follow",
       },
       signin: {
         title: "Customer Sign In & Account Profile | iConnect BLR",
@@ -315,7 +327,7 @@ function App() {
 
   const overlays = (
     <>
-      <AnimatePresence>{drawer && <motion.div className={drawer === "product" ? "drawer-backdrop product-backdrop" : "drawer-backdrop"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(null)}><motion.aside className={drawer === "product" ? "drawer product-drawer" : "drawer"} initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 28, stiffness: 260 }} onClick={e => e.stopPropagation()}>{drawer === "cart" && <CartDrawer cart={cart} total={total} setDrawer={setDrawer} remove={id => setCart(c => c.filter(p => p.id !== id))} />}{drawer === "login" && <LoginDrawer close={() => setDrawer(null)} goPage={goPage} />}{drawer === "sell" && <SellDrawer close={() => setDrawer(null)} submitted={submitted} setSubmitted={setSubmitted} />}{drawer === "repair" && <RepairDrawer close={() => setDrawer(null)} />}{drawer === "checkout" && <CheckoutDrawer cart={cart} total={total} onPlaced={() => setCart([])} close={() => setDrawer(null)} />}{drawer === "product" && selected && <ProductDrawer product={selected} allProducts={allProducts} onSelectProduct={setSelected} saved={saved.includes(selected.id)} toggleSaved={() => toggleSaved(selected.id)} addToCart={addToCart} buyNow={product => { if (!cart.some(item => item.id === product.id)) addToCart(product); setDrawer("checkout"); }} onExchange={() => setDrawer("sell")} notify={notify} close={() => setDrawer(null)} />}</motion.aside></motion.div>}</AnimatePresence>
+      <AnimatePresence>{drawer && <motion.div className={drawer === "product" ? "drawer-backdrop product-backdrop" : "drawer-backdrop"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(null)}><motion.aside className={drawer === "product" ? "drawer product-drawer" : "drawer"} initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 28, stiffness: 260 }} onClick={e => e.stopPropagation()}>{drawer === "cart" && <CartDrawer cart={cart} total={total} setDrawer={setDrawer} remove={id => setCart(c => c.filter(p => p.id !== id))} />}{drawer === "login" && <LoginDrawer close={() => setDrawer(null)} goPage={goPage} />}{drawer === "sell" && <SellDrawer close={() => setDrawer(null)} submitted={submitted} setSubmitted={setSubmitted} />}{drawer === "repair" && <RepairDrawer close={() => setDrawer(null)} />}{drawer === "checkout" && <CheckoutDrawer cart={cart} total={total} onPlaced={() => setCart([])} close={() => setDrawer(null)} goPage={goPage} />}{drawer === "product" && selected && <ProductDrawer product={selected} allProducts={allProducts} onSelectProduct={setSelected} saved={saved.includes(selected.id)} toggleSaved={() => toggleSaved(selected.id)} addToCart={addToCart} buyNow={product => { if (!cart.some(item => item.id === product.id)) addToCart(product); setDrawer("checkout"); }} onExchange={() => { setDrawer(null); openWhatsAppSell(); }} notify={notify} close={() => setDrawer(null)} />}</motion.aside></motion.div>}</AnimatePresence>
       <AnimatePresence>{toast && <motion.div className="toast" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}><Check size={17} /> {toast}</motion.div>}</AnimatePresence>
     </>
   );
@@ -350,7 +362,7 @@ function App() {
         <button className="mobile-menu" onClick={() => setMobileNav(!mobileNav)} aria-label="Menu">{mobileNav ? <X size={19} /> : <Menu size={19} />}</button>
       </div>
     </motion.header>
-    <motion.nav className={mobileNav ? "market-nav open" : "market-nav"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .18, duration: .4 }}><button onClick={() => goPage("shop")}>Showroom Stock</button><button onClick={() => goPage("sell")}>Sell / Trade In</button><button onClick={() => goPage("repair")}>Repair Lab</button><button onClick={() => scrollTo("stores")}>Showrooms</button><button onClick={() => goPage("track")}>Track Status</button><button onClick={() => goPage("signin")}>{meQuery.data ? "My Profile" : "Customer Sign In"}</button><button onClick={() => goPage("admin")}>Admin Portal</button><button className="nav-highlight" onClick={() => scrollTo("catalogue")}><Zap size={14} /> Today's Arrivals</button></motion.nav>
+    <motion.nav className={mobileNav ? "market-nav open" : "market-nav"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .18, duration: .4 }}><button onClick={() => goPage("shop")}>Showroom Stock</button><button onClick={openWhatsAppSell}>Sell Mobiles (WhatsApp)</button><button onClick={openWhatsAppRepair}>Book Repair (WhatsApp)</button><button onClick={() => scrollTo("stores")}>Showrooms</button><button onClick={() => goPage("signin")}>{meQuery.data ? "My Profile" : "Customer Sign In"}</button><button onClick={() => goPage("admin")}>Admin Portal</button><button className="nav-highlight" onClick={() => scrollTo("catalogue")}><Zap size={14} /> Today's Arrivals</button></motion.nav>
 
     <main id="home">
       <section className="market-hero" aria-labelledby="starting-hero-heading">
@@ -364,7 +376,7 @@ function App() {
               <span className="side-card-icon-chip repair-chip"><Wrench size={16} /> EXPRESS REPAIR BENCH</span>
               <span className="side-card-number">01</span>
             </div>
-            <div className="side-before-after" onClick={() => goPage("repair")} role="button" tabIndex={0} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") goPage("repair"); }}>
+            <div className="side-before-after" onClick={openWhatsAppRepair} role="button" tabIndex={0} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") openWhatsAppRepair(); }}>
               <figure className="ba-frame ba-before">
                 <img src="/images/screen_before_cracked_1791519372358.jpg" alt="Before repair: Damaged smartphone display" loading="lazy" referrerPolicy="no-referrer" />
                 <figcaption className="ba-badge ba-badge-before">Before · Cracked</figcaption>
@@ -380,7 +392,7 @@ function App() {
             <div className="side-card-body">
               <h3>Fastest Mobile<br /><em>Repair Service</em></h3>
               <p>Quick, reliable and professional service — screen, battery, and charging repairs while you wait.</p>
-              <button onClick={() => goPage("repair")}>Book Express Repair <ArrowRight size={15} /></button>
+              <button onClick={openWhatsAppRepair}>Book Repair on WhatsApp <ArrowRight size={15} /></button>
             </div>
           </motion.div>
 
@@ -389,7 +401,7 @@ function App() {
               <span className="side-card-icon-chip sell-chip"><Tag size={16} /> BUY · SELL · EXCHANGE</span>
               <span className="side-card-number">02</span>
             </div>
-            <div className="side-cash-showcase" onClick={() => goPage("sell")} role="button" tabIndex={0} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") goPage("sell"); }}>
+            <div className="side-cash-showcase" onClick={openWhatsAppSell} role="button" tabIndex={0} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") openWhatsAppSell(); }}>
               <img src="/images/phone_to_inr_cash_1791520147832.jpg" alt="Buy, Sell or Exchange smartphones at I CONNECT BLR" loading="lazy" referrerPolicy="no-referrer" />
               <div className="side-cash-overlay">
                 <span className="cash-pill-tag">BUY · SELL · EXCHANGE</span>
@@ -399,25 +411,25 @@ function App() {
             <div className="side-card-body">
               <h3>Sell or exchange<br /><em>your smartphone?</em></h3>
               <p>Get great deals on smartphones with instant cash/UPI buyback or on-the-spot upgrade credit.</p>
-              <button onClick={() => goPage("sell")}>Start Sell / Exchange <ArrowRight size={15} /></button>
+              <button onClick={openWhatsAppSell}>Sell Mobiles on WhatsApp <ArrowRight size={15} /></button>
             </div>
           </motion.div>
         </motion.div>
       </section>
 
-      <section className="category-bar"><div className="category-inner">{categories.map(({ label, icon: Icon }) => <motion.button key={label} whileHover={{ y: -4 }} onClick={() => label === "Repair" ? goPage("repair") : label === "Sell / Exchange" ? goPage("sell") : (setFilter(label), scrollTo("catalogue"))}><span className="category-icon"><Icon size={22} /></span><b>{label}</b><ChevronDown size={12} /></motion.button>)}</div></section>
+      <section className="category-bar"><div className="category-inner">{categories.map(({ label, icon: Icon }) => <motion.button key={label} whileHover={{ y: -4 }} onClick={() => label === "Repair" ? openWhatsAppRepair() : label === "Sell / Exchange" ? openWhatsAppSell() : (setFilter(label), scrollTo("catalogue"))}><span className="category-icon"><Icon size={22} /></span><b>{label}</b><ChevronDown size={12} /></motion.button>)}</div></section>
 
       <section className="catalogue-section" id="catalogue"><div className="section-head-market catalogue-head"><div><span className="market-kicker">READY FOR COUNTER PICKUP</span><h2>Hand-picked smartphones, laptops &amp; <em>daily essentials.</em></h2></div><div className="sort-wrap"><span>{filtered.length} {filtered.length === 1 ? "device" : "devices"} available</span><label className="sort-label" htmlFor="home-sort">Sort by</label><select id="home-sort" value={sort} onChange={e => setSort(e.target.value)}><option>Recommended</option><option>Price: low to high</option><option>Price: high to low</option></select></div></div><div className="catalogue-controls"><div className="catalogue-tabs">{["All", "Mobiles", "iPhone", "Samsung", "Android", "Laptops", "Tablets", "Wearables", "Accessories"].map(f => <button key={f} className={filter === f && !showSaved ? "active" : ""} onClick={() => { setFilter(f); setShowSaved(false); }}>{f}</button>)}</div><button className={showSaved ? "catalogue-saved active" : "catalogue-saved"} onClick={() => setShowSaved(value => !value)} aria-pressed={showSaved}><Heart size={15} fill={showSaved ? "currentColor" : "none"} /> Shortlist <span>{saved.length}</span></button><div className="catalogue-note"><ShieldCheck size={16} /> Verified battery health · 6-month branch warranty</div></div><div className="catalogue-grid">{filtered.map((p, i) => <ProductCard key={p.id} product={p} index={i} saved={saved.includes(p.id)} toggleSave={() => toggleSaved(p.id)} openProduct={openProduct} addToCart={addToCart} />)}{filtered.length === 0 && <div className="catalogue-empty">{showSaved ? "Your shortlist is empty—tap the heart icon on any device to save it." : "No matching devices in this category right now."} <button onClick={() => { setSearch(""); setFilter("All"); setShowSaved(false); }}>Show all stock</button></div>}</div></section>
 
       <section className="stores-market" id="stores"><div className="section-head-market"><div><span className="market-kicker">BENGALURU SHOWROOM NETWORK</span><h2>Three neighbourhood branches.<br /><em>Walk in any day of the week.</em></h2></div><a href="https://www.instagram.com/iconnect.blr/" target="_blank" rel="noreferrer" className="market-link">See live unboxings on @iconnect.blr <Instagram size={15} /></a></div><StoresSlider /></section>
     </main>
-    <footer className="market-footer"><div className="market-footer-grid"><div><div className="brand footer-brand"><span className="brand-mark"><span /></span><span>iconnect<span className="brand-dot">.</span>blr</span></div><p>Bengaluru's neighbourhood destination for hardware-verified pre-owned smartphones, instant cash or upgrade trade-ins, component-level repairs, and authentic charging accessories.</p></div><div className="footer-column"><b>Explore</b><button onClick={() => goPage("shop")}>Full Device Catalogue</button><button onClick={() => goPage("sell")}>Sell or Trade In</button><button onClick={() => goPage("repair")}>Express Repair Lab</button><button onClick={() => scrollTo("stores")}>Bengaluru Showrooms</button><button onClick={() => goPage("track")}>Track Order / Ticket</button><button onClick={() => goPage("signin")}>Customer Sign In</button><button onClick={() => goPage("signup")}>Create Account</button><button onClick={() => goPage("admin")}>Admin Portal (Store Management)</button></div><div className="footer-column"><b>Showroom Desks</b><a href="tel:+917829439076">RT Nagar Flagship · 78294 39076</a><a href="tel:+916361733735">Yeshwanthpur Hub · 63617 33735</a><a href="tel:+917829439076">Ganganagar Desk · 78294 39076</a><a href="https://wa.me/917829439076" target="_blank" rel="noreferrer">WhatsApp Support · 78294 39076</a><a href="https://www.instagram.com/iconnect.blr/" target="_blank" rel="noreferrer">Instagram @iconnect.blr</a></div><div className="footer-cta"><span>Searching for a specific configuration?</span><a href="https://wa.me/917829439076?text=Hi%20iConnect%20BLR%20Team!%20I%20am%20looking%20for%20a%20specific%20smartphone%20model%20and%20would%20like%20to%20check%20live%20branch%20availability." target="_blank" rel="noreferrer">Chat with our stock desk <ArrowRight size={15} /></a></div></div><div className="footer-bottom"><span>© 2026 I CONNECT BLR · Bengaluru</span><span>Pre-Owned Flagships · Instant Buyback · Express Repairs · Original Gear</span></div></footer>
+    <footer className="market-footer"><div className="market-footer-grid"><div><div className="brand footer-brand"><span className="brand-mark"><span /></span><span>iconnect<span className="brand-dot">.</span>blr</span></div><p>Bengaluru's neighbourhood destination for hardware-verified pre-owned smartphones, instant cash or upgrade trade-ins, component-level repairs, and authentic charging accessories.</p></div><div className="footer-column"><b>Explore</b><button onClick={() => goPage("shop")}>Full Device Catalogue</button><button onClick={openWhatsAppSell}>Sell Mobiles (WhatsApp)</button><button onClick={openWhatsAppRepair}>Book Repair (WhatsApp)</button><button onClick={() => scrollTo("stores")}>Bengaluru Showrooms</button><button onClick={() => goPage("signin")}>Customer Sign In</button><button onClick={() => goPage("signup")}>Create Account</button><button onClick={() => goPage("admin")}>Admin Portal (Store Management)</button></div><div className="footer-column"><b>Showroom Desks</b><a href="tel:+917829439076">RT Nagar Flagship · 78294 39076</a><a href="tel:+916361733735">Yeshwanthpur Hub · 63617 33735</a><a href="tel:+917829439076">Ganganagar Desk · 78294 39076</a><a href="https://wa.me/917829439076" target="_blank" rel="noreferrer">WhatsApp Support · 78294 39076</a><a href="https://www.instagram.com/iconnect.blr/" target="_blank" rel="noreferrer">Instagram @iconnect.blr</a></div><div className="footer-cta"><span>Searching for a specific configuration?</span><a href="https://wa.me/917829439076?text=Hi%20iConnect%20BLR%20Team!%20I%20am%20looking%20for%20a%20specific%20smartphone%20model%20and%20would%20like%20to%20check%20live%20branch%20availability." target="_blank" rel="noreferrer">Chat with our stock desk <ArrowRight size={15} /></a></div></div><div className="footer-bottom"><span>© 2026 I CONNECT BLR · Bengaluru</span><span>Pre-Owned Flagships · Instant Buyback · Express Repairs · Original Gear</span></div></footer>
 
     <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
       <button className="active" onClick={() => goPage("home")}><House size={18} /><span>Home</span></button>
       <button onClick={() => goPage("shop")}><ShoppingBag size={18} /><span>Shop</span></button>
-      <button onClick={() => goPage("sell")}><RotateCcw size={18} /><span>Sell</span></button>
-      <button onClick={() => goPage("repair")}><Wrench size={18} /><span>Repair</span></button>
+      <button onClick={openWhatsAppSell}><RotateCcw size={18} /><span>Sell</span></button>
+      <button onClick={openWhatsAppRepair}><Wrench size={18} /><span>Repair</span></button>
       {meQuery.data?.role === "admin" ? (
         <button onClick={() => goPage("admin")}><ShieldCheck size={18} /><span>Admin</span></button>
       ) : (
@@ -1185,7 +1197,7 @@ function RepairDrawer({ close }: { close: () => void }) {
     </section>
   );
 }
-function CheckoutDrawer({ cart, total, onPlaced, close }: { cart: Product[]; total: number; onPlaced: () => void; close: () => void }) {
+function CheckoutDrawer({ cart, total, onPlaced, close, goPage }: { cart: Product[]; total: number; onPlaced: () => void; close: () => void; goPage?: (p: Page) => void }) {
   const [orderNumber, setOrderNumber] = useState("");
   const [error, setError] = useState("");
   const [customerName, setCustomerName] = useState("");
@@ -1204,7 +1216,7 @@ function CheckoutDrawer({ cart, total, onPlaced, close }: { cart: Product[]; tot
       setError(cause instanceof Error ? cause.message : "We couldn't save this order request. Please try again.");
     }
   };
-  if (orderNumber) return <><DrawerHeader title="Request received" kicker="ORDER REQUEST SAVED" close={close} /><div className="order-confirmation"><div className="order-confirmation-icon"><Check size={24} /></div><p>Order reference</p><strong>{orderNumber}</strong><span>Your selected branch will confirm availability and the final amount before you pay. No payment has been taken.</span><button className="market-primary full" onClick={() => { close(); window.location.assign(`/track?order=${encodeURIComponent(orderNumber)}`); }}>Track this order <ArrowRight size={16} /></button></div></>;
+  if (orderNumber) return <><DrawerHeader title="Request received" kicker="ORDER REQUEST SAVED" close={close} /><div className="order-confirmation"><div className="order-confirmation-icon"><Check size={24} /></div><p>Order reference</p><strong>{orderNumber}</strong><span>Your selected branch will confirm availability and the final amount before you pay. No payment has been taken.</span><button className="market-primary full" onClick={() => { close(); if (goPage) goPage("signin"); else window.location.assign("/signin"); }}>View in My Account <ArrowRight size={16} /></button></div></>;
   return <><DrawerHeader title="Checkout" kicker="BRANCH PICKUP REQUEST" close={close} /><div className="checkout-summary-list">{cart.map(item => <div key={item.id}><span>{item.name}<small>{item.spec}</small></span><b>{money(item.price)}</b></div>)}</div><div className="checkout-total"><span>Estimated total</span><b>{money(total)}</b></div><form className="drawer-form checkout-form" onSubmit={submit}><div className="checkout-callout"><BadgeCheck size={18} /><span><b>Pay at the store.</b> We'll confirm stock and the final amount before you travel. This request does not charge you.</span></div><label>Full name<input required minLength={2} maxLength={80} autoComplete="name" value={customerName} onChange={event => setCustomerName(event.target.value)} placeholder="Your name" /></label><label>Mobile number<input required type="tel" autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} placeholder="Phone number for confirmation" /></label><label>Email <span className="optional-label">Optional</span><input type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" /></label><label>Pickup branch<select value={branch} onChange={event => setBranch(event.target.value)}><option>RT Nagar</option><option>Yeshwanthpur</option><option>Ganganagar</option></select></label>{error && <p className="auth-message error" role="alert">{error}</p>}<button className="market-primary full" type="submit" disabled={placeOrder.isPending || cart.length === 0}>{placeOrder.isPending ? "Saving order request…" : "Place order request"} <ArrowRight size={16} /></button></form><p className="fine-print">Your order stays pending until the branch confirms it.</p></>;
 }
 function Success({ title, copy, close }: { title: string; copy: string; close: () => void }) { return <div className="success-state"><div className="success-icon"><Check /></div><h3>{title}</h3><p>{copy}</p><button className="market-primary" onClick={close}>Done</button></div>; }
@@ -1217,26 +1229,16 @@ function DedicatedPage({ page, darkMode, setDarkMode, goPage, products, filtered
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
   const isAdminLoginGate = page === "admin" && meQuery.data?.role !== "admin";
   const hidePageHeader = isAuthPage || isAdminLoginGate;
-  const title = page === "shop" ? "All devices, ready to move." : page === "sell" ? "Sell or exchange your device." : page === "repair" ? "Express device repair." : page === "track" ? "Track your order." : isAuthPage ? "Your iConnect account." : "Admin workspace.";
+  const title = page === "shop" ? "All devices, ready to move." : page === "sell" ? "Sell or exchange your device." : page === "repair" ? "Express device repair." : isAuthPage ? "Your iConnect account." : "Admin workspace.";
   return <div className={darkMode ? "market-shell editorial-dark dedicated-page" : "market-shell dedicated-page"}>
     <header className="dedicated-header"><button className="brand market-brand" onClick={() => goPage("home")}><span className="brand-mark"><span /></span><span>iconnect<span className="brand-dot">.</span>blr</span></button><div className="dedicated-header-actions"><button className="dedicated-back" onClick={() => goPage("home")}><ArrowLeft size={14} /> <span>Back to store</span></button>{meQuery.data?.role === "admin" && page !== "admin" && (<button className="market-admin-badge-btn" onClick={() => goPage("admin")} aria-label="Admin Command Center"><ShieldCheck size={14} /> <span>Admin</span></button>)}<button className="dedicated-bag" onClick={openCart} aria-label={`Open bag with ${cartCount} items`}><ShoppingBag size={17} /><span>Bag</span><b>{cartCount}</b></button><button className={meQuery.data ? "dedicated-profile signed-in" : "dedicated-profile"} onClick={() => goPage("signin")} aria-label="Account">{meQuery.data ? <span className="profile-avatar-mini">{(meQuery.data.name || meQuery.data.email || "U").charAt(0).toUpperCase()}</span> : <CircleUserRound size={18} />}</button><button className="theme-toggle" onClick={() => setDarkMode(!darkMode)} aria-label="Toggle theme">{darkMode ? <Sun size={17} /> : <Moon size={17} />}</button></div></header>
-    <main className={`dedicated-main${hidePageHeader ? " auth-dedicated" : ""}`}>{!hidePageHeader && <><div className="dedicated-kicker">{page === "admin" ? "STORE MANAGEMENT · /ADMIN" : "ICONNECT BLR · BENGALURU"}</div><h1>{title}</h1></>}{page === "track" && <TrackOrderPage />}{page === "shop" && <ShopPage filtered={filtered} search={search} openProduct={openProduct} addToCart={addToCart} filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} saved={saved} toggleSaved={toggleSaved} />}{page === "sell" && <SellPage submitted={submitted} setSubmitted={setSubmitted} close={() => goPage("home")} />}{page === "repair" && <RepairPage close={() => goPage("home")} />}{isAuthPage && <AuthPage goPage={goPage} initialTab={page === "signup" ? "signup" : "signin"} products={products} saved={saved} toggleSaved={toggleSaved} openProduct={openProduct} addToCart={addToCart} openCart={openCart} />}{page === "admin" && <AdminPage products={products} saveManagedProduct={saveManagedProduct} goPage={goPage} />}</main>
-    <nav className="mobile-bottom-nav" aria-label="Mobile navigation"><button className={page === "home" ? "active" : ""} onClick={() => goPage("home")}><House size={18} /><span>Home</span></button><button className={page === "shop" ? "active" : ""} onClick={() => goPage("shop")}><ShoppingBag size={18} /><span>Shop</span></button><button className={page === "sell" ? "active" : ""} onClick={() => goPage("sell")}><RotateCcw size={18} /><span>Sell</span></button><button className={page === "repair" ? "active" : ""} onClick={() => goPage("repair")}><Wrench size={18} /><span>Repair</span></button>{meQuery.data?.role === "admin" ? (<button className={page === "admin" ? "active" : ""} onClick={() => goPage("admin")}><ShieldCheck size={18} /><span>Admin</span></button>) : (<button className={isAuthPage ? "active" : ""} onClick={() => goPage("signin")}><CircleUserRound size={18} /><span>{meQuery.data ? "Profile" : "Sign In"}</span></button>)}</nav>
+    <main className={`dedicated-main${hidePageHeader ? " auth-dedicated" : ""}`}>{!hidePageHeader && <><div className="dedicated-kicker">{page === "admin" ? "STORE MANAGEMENT · /ADMIN" : "ICONNECT BLR · BENGALURU"}</div><h1>{title}</h1></>}{page === "shop" && <ShopPage filtered={filtered} search={search} openProduct={openProduct} addToCart={addToCart} filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} saved={saved} toggleSaved={toggleSaved} />}{page === "sell" && <SellPage submitted={submitted} setSubmitted={setSubmitted} close={() => goPage("home")} />}{page === "repair" && <RepairPage close={() => goPage("home")} />}{isAuthPage && <AuthPage goPage={goPage} initialTab={page === "signup" ? "signup" : "signin"} products={products} saved={saved} toggleSaved={toggleSaved} openProduct={openProduct} addToCart={addToCart} openCart={openCart} />}{page === "admin" && <AdminPage products={products} saveManagedProduct={saveManagedProduct} goPage={goPage} />}</main>
+    <nav className="mobile-bottom-nav" aria-label="Mobile navigation"><button className={page === "home" ? "active" : ""} onClick={() => goPage("home")}><House size={18} /><span>Home</span></button><button className={page === "shop" ? "active" : ""} onClick={() => goPage("shop")}><ShoppingBag size={18} /><span>Shop</span></button><button onClick={openWhatsAppSell}><RotateCcw size={18} /><span>Sell</span></button><button onClick={openWhatsAppRepair}><Wrench size={18} /><span>Repair</span></button>{meQuery.data?.role === "admin" ? (<button className={page === "admin" ? "active" : ""} onClick={() => goPage("admin")}><ShieldCheck size={18} /><span>Admin</span></button>) : (<button className={isAuthPage ? "active" : ""} onClick={() => goPage("signin")}><CircleUserRound size={18} /><span>{meQuery.data ? "Profile" : "Sign In"}</span></button>)}</nav>
   </div>;
 }
 function ShopPage({ filtered, search, openProduct, addToCart, filter, setFilter, sort, setSort, saved, toggleSaved }: { filtered: Product[]; search: string; openProduct: (p: Product) => void; addToCart: (p: Product) => void; filter: string; setFilter: (filter: string) => void; sort: string; setSort: (sort: string) => void; saved: number[]; toggleSaved: (id: number) => void }) { return <section className="dedicated-shop"><div className="dedicated-intro"><p>{search ? <>Showing results for <strong>“{search}”</strong>. </> : null}Every device is quality checked, clearly priced, and available for pickup at RT Nagar, Yeshwanthpur, or Ganganagar. Tap any device for full specifications and 32-point inspection details.</p><div><b>{filtered.length}</b><span>{search ? "matches" : "available now"}</span></div></div><div className="shop-toolbar"><div className="catalogue-tabs">{["All", "Mobiles", "iPhone", "Samsung", "Android", "Laptops", "Tablets", "Wearables", "Accessories"].map(category => <button key={category} className={filter === category ? "active" : ""} onClick={() => setFilter(category)}>{category}</button>)}</div><label className="sort-wrap" htmlFor="shop-sort">Sort by <select id="shop-sort" value={sort} onChange={e => setSort(e.target.value)}><option>Recommended</option><option>Price: low to high</option><option>Price: high to low</option></select></label></div><div className="dedicated-product-grid">{filtered.map((p, i) => <ProductCard key={p.id} product={p} index={i} saved={saved.includes(p.id)} toggleSave={() => toggleSaved(p.id)} openProduct={openProduct} addToCart={addToCart} />)}</div>{filtered.length === 0 && <div className="catalogue-empty">No matching devices yet. <button onClick={() => setFilter("All")}>Clear filters</button></div>}</section>; }
-function SellPage({ submitted, setSubmitted, close }: { submitted: boolean; setSubmitted: (v: boolean) => void; close: () => void }) { return <section className="dedicated-form-page"><div className="form-page-copy"><span>SELL OR EXCHANGE</span><p>Tell us what you have. Add photos, choose a branch, and our team will review it for a fair buy or exchange quote.</p><div className="form-page-points"><span>Transparent quote</span><span>Buy or exchange</span><span>RT Nagar · Yeshwanthpur · Ganganagar</span></div></div><div className="dedicated-form-card"><SellDrawer close={close} submitted={submitted} setSubmitted={setSubmitted} /></div></section>; }
-function RepairPage({ close }: { close: () => void }) { return <section className="dedicated-form-page"><div className="form-page-copy"><span>EXPRESS REPAIR CARE</span><p>Tell us what needs fixing and we’ll log your request for our technicians and prepare WhatsApp for instant priority support.</p><div className="form-page-points"><span>Screen & battery</span><span>Laptop & tablet</span><span>RT Nagar · Yeshwanthpur · Ganganagar</span></div></div><div className="dedicated-form-card"><RepairDrawer close={close} /></div></section>; }
-function TrackOrderPage() {
-  const params = new URLSearchParams(window.location.search);
-  const [orderNumber, setOrderNumber] = useState(params.get("order") ?? "");
-  const [phone, setPhone] = useState("");
-  const [lookup, setLookup] = useState<{ orderNumber: string; phone: string } | null>(null);
-  const order = trpc.checkout.lookup.useQuery(lookup ?? { orderNumber: "", phone: "" }, { enabled: Boolean(lookup), retry: false, refetchInterval: lookup ? 15000 : false });
-  const statusLabel: Record<string, string> = { pending: "Awaiting branch confirmation", confirmed: "Confirmed by the branch", paid: "Payment received", ready: "Ready for pickup", completed: "Completed", cancelled: "Cancelled" };
-  const submit = (event: React.FormEvent) => { event.preventDefault(); setLookup({ orderNumber: orderNumber.trim().toUpperCase(), phone }); };
-  return <section className="track-order-page"><div className="track-order-intro"><PackageCheck size={26} /><div><h2>Order status, made simple.</h2><p>Enter your order reference and the phone number used at checkout.</p></div></div><form className="track-order-form" onSubmit={submit}><label>Order reference<input required minLength={8} maxLength={24} value={orderNumber} onChange={event => setOrderNumber(event.target.value)} placeholder="IC-XXXXXXXXXX" /></label><label>Mobile number<input required type="tel" value={phone} onChange={event => setPhone(event.target.value)} placeholder="Checkout phone number" /></label><button className="market-primary" type="submit" disabled={order.isFetching}>{order.isFetching ? "Checking…" : "Check order"} <ArrowRight size={16} /></button></form>{order.isError && <p className="auth-message error" role="alert">We couldn't check this order. Please try again in a moment.</p>}{order.data === null && <p className="order-lookup-status" role="status">No matching order found. Check the reference and phone number.</p>}{order.data && <article className="track-order-card"><div className="track-order-card-head"><div><small>ORDER REFERENCE</small><h3>{order.data.orderNumber}</h3></div><span className={`order-status-pill status-${order.data.status}`}>{statusLabel[order.data.status] ?? order.data.status}</span></div><p>{order.data.branch} pickup · placed {new Date(order.data.createdAt).toLocaleDateString("en-IN")}</p><div className="track-order-items">{order.data.items.map((item, index) => <div key={`${item.id}-${index}`}><span>{item.name}<small>{item.spec}</small></span><b>{money(item.price)}</b></div>)}</div><div className="track-order-total"><span>{order.data.status === "paid" ? "Payment received" : "Estimated total · pay at store"}</span><b>{money(order.data.total)}</b></div><small className="track-order-note">{order.data.status === "paid" ? "Your branch recorded the payment. Use this page to follow your order through pickup." : "No online payment was taken. Your branch will confirm availability and the final amount before pickup."}</small></article>}</section>;
-}
+function SellPage({ submitted, setSubmitted, close }: { submitted: boolean; setSubmitted: (v: boolean) => void; close: () => void }) { return <section className="dedicated-form-page"><div className="form-page-copy"><span>SELL OR EXCHANGE</span><p>Tell us what you have. Chat directly with our evaluation desk on WhatsApp for instant cash/UPI buyback or on-the-spot upgrade credit.</p><div className="form-page-points"><span>Instant Cash / UPI</span><span>Buy or exchange</span><span>RT Nagar · Yeshwanthpur · Ganganagar</span></div><div style={{ marginTop: 18 }}><button type="button" className="market-primary" onClick={openWhatsAppSell}>Sell Mobiles on WhatsApp Now <ArrowRight size={15} /></button></div></div><div className="dedicated-form-card"><SellDrawer close={close} submitted={submitted} setSubmitted={setSubmitted} /></div></section>; }
+function RepairPage({ close }: { close: () => void }) { return <section className="dedicated-form-page"><div className="form-page-copy"><span>EXPRESS REPAIR CARE</span><p>Book free same-day diagnosis and express screen, battery, and motherboard repairs directly on WhatsApp for priority queueing.</p><div className="form-page-points"><span>Screen & battery</span><span>Laptop & tablet</span><span>RT Nagar · Yeshwanthpur · Ganganagar</span></div><div style={{ marginTop: 18 }}><button type="button" className="market-primary" onClick={openWhatsAppRepair}>Book Repair on WhatsApp Now <ArrowRight size={15} /></button></div></div><div className="dedicated-form-card"><RepairDrawer close={close} /></div></section>; }
 
 type ProfileSection = "overview" | "orders" | "saved" | "service" | "settings";
 
@@ -1270,6 +1272,7 @@ function AuthPage({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [showCustomGoogle, setShowCustomGoogle] = useState(false);
   const [googleName, setGoogleName] = useState("");
   const [googleEmail, setGoogleEmail] = useState("");
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
@@ -1339,8 +1342,8 @@ function AuthPage({
       const response = await fetch("/api/auth/google/url");
       const data = (await response.json()) as { configured?: boolean; url?: string };
       if (data.configured && data.url) {
-        window.open(data.url, "google_oauth", "width=540,height=660");
-        return;
+        const popup = window.open(data.url, "google_oauth", "width=540,height=660");
+        if (popup) return;
       }
       setShowGoogleModal(true);
     } catch {
@@ -1348,23 +1351,31 @@ function AuthPage({
     }
   };
 
-  const submitGoogleModal = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSelectGoogleAccount = async (targetEmail: string, targetName: string) => {
     setMessage(null);
     try {
-      const derivedName = googleName.trim() || googleEmail.split("@")[0] || "iConnect Customer";
-      const result = await googleSignIn.mutateAsync({ email: googleEmail, name: derivedName });
+      const result = await googleSignIn.mutateAsync({
+        email: targetEmail,
+        name: targetName || targetEmail.split("@")[0] || "Customer",
+      });
       saveSessionToken(result.token);
       await utils.auth.me.invalidate();
       await utils.auth.myActivity.invalidate();
       setShowGoogleModal(false);
-      setMessage({ text: "Signed in with Google.", error: false });
+      setMessage({ text: `Welcome, ${result.name || "Customer"}! Signed in with Google.`, error: false });
     } catch (error) {
       setMessage({
-        text: error instanceof Error ? error.message : "Could not sign in with Google.",
+        text: error instanceof Error ? error.message : "Could not complete Google Sign-In.",
         error: true,
       });
     }
+  };
+
+  const submitGoogleModal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!googleEmail.trim()) return;
+    const derivedName = googleName.trim() || googleEmail.split("@")[0] || "Customer";
+    await handleSelectGoogleAccount(googleEmail.trim(), derivedName);
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -1687,24 +1698,24 @@ function AuthPage({
                     <ArrowRight size={17} />
                   </div>
 
-                  <div className="account-quick-card" onClick={() => goPage("sell")} role="button" tabIndex={0}>
+                  <div className="account-quick-card" onClick={openWhatsAppSell} role="button" tabIndex={0}>
                     <div className="quick-card-icon">
                       <Tag size={20} />
                     </div>
                     <div>
                       <h3>Sell or Exchange Old Mobile</h3>
-                      <p>Get an instant ₹ INR cash or UPI payout quote from our Bengaluru evaluation desk.</p>
+                      <p>Chat on WhatsApp for an instant ₹ INR cash or UPI payout quote from our evaluation desk.</p>
                     </div>
                     <ArrowRight size={17} />
                   </div>
 
-                  <div className="account-quick-card" onClick={() => goPage("repair")} role="button" tabIndex={0}>
+                  <div className="account-quick-card" onClick={openWhatsAppRepair} role="button" tabIndex={0}>
                     <div className="quick-card-icon">
                       <Wrench size={20} />
                     </div>
                     <div>
                       <h3>Book Express Screen / Battery Care</h3>
-                      <p>Free same-day technician diagnosis at RT Nagar, Yeshwanthpur, or Ganganagar.</p>
+                      <p>Book on WhatsApp for same-day priority technician diagnosis at RT Nagar, Yeshwanthpur, or Ganganagar.</p>
                     </div>
                     <ArrowRight size={17} />
                   </div>
@@ -1717,13 +1728,6 @@ function AuthPage({
                       <span className="account-kicker">RECENT ACTIVITY</span>
                       <h2>Your Branch Reservations</h2>
                     </div>
-                    <button
-                      type="button"
-                      className="account-text-link"
-                      onClick={() => goPage("track")}
-                    >
-                      Lookup by Order ID <ArrowRight size={14} />
-                    </button>
                   </div>
 
                   {customerOrders.length === 0 ? (
@@ -1769,9 +1773,6 @@ function AuthPage({
                     <span className="account-kicker">ORDERS &amp; PICKUPS</span>
                     <h2>Branch Pickup Reservations</h2>
                   </div>
-                  <button type="button" className="account-action-outline" onClick={() => goPage("track")}>
-                    Track with Order Reference
-                  </button>
                 </div>
 
                 {customerOrders.length === 0 ? (
@@ -1889,8 +1890,8 @@ function AuthPage({
                       <span className="account-kicker">SELL / EXCHANGE</span>
                       <h2>Your Buyback Quotes</h2>
                     </div>
-                    <button type="button" className="account-action-outline" onClick={() => goPage("sell")}>
-                      + New Quote Request
+                    <button type="button" className="account-action-outline" onClick={openWhatsAppSell}>
+                      + New Quote (WhatsApp)
                     </button>
                   </div>
 
@@ -1899,10 +1900,10 @@ function AuthPage({
                       <RotateCcw size={28} />
                       <div>
                         <strong>No sell or exchange requests yet</strong>
-                        <p>Trading in an old phone? Submit your model and condition for an instant ₹ INR quote.</p>
+                        <p>Trading in an old phone? Chat with our team on WhatsApp for an instant ₹ INR quote.</p>
                       </div>
-                      <button type="button" className="market-primary" onClick={() => goPage("sell")}>
-                        Get a Buyback Quote <ArrowRight size={15} />
+                      <button type="button" className="market-primary" onClick={openWhatsAppSell}>
+                        Get Buyback Quote on WhatsApp <ArrowRight size={15} />
                       </button>
                     </div>
                   ) : (
@@ -1932,8 +1933,8 @@ function AuthPage({
                       <span className="account-kicker">EXPRESS REPAIR CARE</span>
                       <h2>Your Repair Tickets</h2>
                     </div>
-                    <button type="button" className="account-action-outline" onClick={() => goPage("repair")}>
-                      + Book a Repair
+                    <button type="button" className="account-action-outline" onClick={openWhatsAppRepair}>
+                      + Book a Repair (WhatsApp)
                     </button>
                   </div>
 
@@ -1942,10 +1943,10 @@ function AuthPage({
                       <Wrench size={28} />
                       <div>
                         <strong>No repair bookings found</strong>
-                        <p>Book same-day screen replacement, battery care, or diagnostics at any Bengaluru branch.</p>
+                        <p>Book same-day screen replacement, battery care, or diagnostics on WhatsApp at any Bengaluru branch.</p>
                       </div>
-                      <button type="button" className="market-primary" onClick={() => goPage("repair")}>
-                        Book Express Repair <ArrowRight size={15} />
+                      <button type="button" className="market-primary" onClick={openWhatsAppRepair}>
+                        Book Express Repair on WhatsApp <ArrowRight size={15} />
                       </button>
                     </div>
                   ) : (
@@ -2058,8 +2059,119 @@ function AuthPage({
   // ============================================================================
   return (
     <section className="auth-simple-shell">
-      <div className="auth-simple-card-wrap">
-        <div className="auth-simple-card">
+      {/* Official Google Identity Account Selector Dialog */}
+      {showGoogleModal && (
+        <div className="gsi-overlay" onClick={() => setShowGoogleModal(false)}>
+          <div className="gsi-dialog" onClick={e => e.stopPropagation()}>
+            <div className="gsi-dialog-head">
+              <div className="gsi-dialog-brand">
+                <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z" />
+                  <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z" />
+                  <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z" />
+                  <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 20.9 7.4 24 12 24z" />
+                </svg>
+                <h3>Sign in with Google</h3>
+              </div>
+              <button
+                type="button"
+                className="gsi-dialog-close"
+                onClick={() => setShowGoogleModal(false)}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p style={{ margin: 0, fontSize: "13.5px", color: "var(--muted)" }}>
+              Choose an account to continue to <strong>iConnect BLR</strong>
+            </p>
+
+            <div className="gsi-account-list">
+              {/* Verified Account: nishanthnimba@gmail.com */}
+              <button
+                type="button"
+                className="gsi-account-card"
+                onClick={() => void handleSelectGoogleAccount("nishanthnimba@gmail.com", "Nishanth Nimba")}
+                disabled={busy}
+              >
+                <div className="gsi-account-avatar">N</div>
+                <div className="gsi-account-info">
+                  <strong>Nishanth Nimba</strong>
+                  <span>nishanthnimba@gmail.com</span>
+                </div>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "#059669",
+                    background: "#ecfdf5",
+                    padding: "3px 9px",
+                    borderRadius: "999px",
+                    border: "1px solid #a7f3d0",
+                  }}
+                >
+                  ⚡ One-Tap Sign In
+                </span>
+              </button>
+
+              {/* Custom Google Account Form / Toggle */}
+              {!showCustomGoogle ? (
+                <button
+                  type="button"
+                  className="gsi-custom-toggle-btn"
+                  onClick={() => setShowCustomGoogle(true)}
+                >
+                  <Plus size={15} /> Use another Google account
+                </button>
+              ) : (
+                <form className="gsi-custom-form" onSubmit={submitGoogleModal}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--ink)" }}>Enter Google Email</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomGoogle(false)}
+                      style={{ fontSize: "11px", color: "var(--muted)", textDecoration: "underline" }}
+                    >
+                      Back
+                    </button>
+                  </div>
+                  <input
+                    required
+                    type="email"
+                    value={googleEmail}
+                    onChange={e => setGoogleEmail(e.target.value)}
+                    placeholder="yourname@gmail.com"
+                    autoFocus
+                  />
+                  <input
+                    value={googleName}
+                    onChange={e => setGoogleName(e.target.value)}
+                    placeholder="Your name (optional)"
+                  />
+                  <button type="submit" className="market-primary full" disabled={busy}>
+                    {googleSignIn.isPending ? "Authenticating with Google…" : "Continue with this Google Account"}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            <p className="gsi-notice">
+              To continue, Google will share your name and email address with iConnect BLR.
+              See our Privacy Policy and Terms of Service.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="auth-proper-wrap">
+        <div className="auth-proper-card">
+          {/* Brand Kicker */}
+          <div className="auth-proper-brand-kicker">
+            <ShieldCheck size={14} />
+            <span>Bengaluru Customer Portal</span>
+          </div>
+
           {/* Segmented Mode Control */}
           <div className="auth-simple-tabs" role="tablist" aria-label="Customer account mode">
             <button
@@ -2082,18 +2194,23 @@ function AuthPage({
             </button>
           </div>
 
-          <div className="auth-simple-head">
-            <h2>{tab === "signin" ? "Sign in" : "Create account"}</h2>
+          <div className="auth-proper-head">
+            <h2>{tab === "signin" ? "Welcome to iConnect BLR" : "Create your account"}</h2>
+            <p>
+              {tab === "signin"
+                ? "Sign in to track orders, manage repair tickets, and access VIP buyback rates across Bengaluru."
+                : "Register in seconds to unlock hardware warranty tracking, express checkout, and instant counter pickups."}
+            </p>
           </div>
 
-          {/* Google Sign-In / Sign-Up */}
+          {/* Official Google Sign-In / Sign-Up */}
           <button
             type="button"
-            className="auth-google-btn"
+            className="auth-google-official-btn"
             onClick={() => void handleGoogleContinue()}
             disabled={busy}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z" />
               <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z" />
               <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z" />
@@ -2102,34 +2219,8 @@ function AuthPage({
             <span>{tab === "signin" ? "Continue with Google" : "Sign up with Google"}</span>
           </button>
 
-          {showGoogleModal && (
-            <form className="auth-google-inline" onSubmit={submitGoogleModal}>
-              <div className="auth-google-inline-head">
-                <strong>Continue with Google</strong>
-                <button type="button" onClick={() => setShowGoogleModal(false)} aria-label="Close">
-                  <X size={15} />
-                </button>
-              </div>
-              <input
-                required
-                type="email"
-                value={googleEmail}
-                onChange={e => setGoogleEmail(e.target.value)}
-                placeholder="yourname@gmail.com"
-              />
-              <input
-                value={googleName}
-                onChange={e => setGoogleName(e.target.value)}
-                placeholder="Your full name"
-              />
-              <button type="submit" className="market-primary full" disabled={busy}>
-                {googleSignIn.isPending ? "Connecting…" : "Continue with Google"}
-              </button>
-            </form>
-          )}
-
           <div className="auth-simple-divider">
-            <span>or</span>
+            <span>or with email &amp; password</span>
           </div>
 
           <form className="auth-simple-form" onSubmit={submit}>
@@ -2143,7 +2234,7 @@ function AuthPage({
                   autoComplete="name"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="Your full name"
+                  placeholder="e.g. Nishanth Nimba"
                 />
               </label>
             )}
@@ -2170,7 +2261,7 @@ function AuthPage({
                   minLength={7}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder={tab === "signin" ? "Enter password" : "Minimum 7 characters"}
+                  placeholder={tab === "signin" ? "Enter your password" : "Minimum 7 characters"}
                 />
                 <button
                   type="button"
@@ -2181,6 +2272,23 @@ function AuthPage({
                 </button>
               </div>
             </label>
+
+            {tab === "signin" && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12.5px" }}>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", cursor: "pointer", color: "var(--muted)" }}>
+                  <input type="checkbox" defaultChecked />
+                  <span>Remember me</span>
+                </label>
+                <a
+                  href="https://wa.me/917829439076?text=Hi%20iConnect%20BLR%20Team!%20I%20need%20help%20recovering%20my%20customer%20account%20password."
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#059669", fontWeight: 600 }}
+                >
+                  Forgot password?
+                </a>
+              </div>
+            )}
 
             {message && (
               <div
@@ -2194,27 +2302,40 @@ function AuthPage({
 
             <button className="market-primary full auth-simple-submit" type="submit" disabled={busy}>
               {busy
-                ? "Please wait…"
+                ? "Connecting…"
                 : tab === "signin"
-                  ? "Sign In"
-                  : "Create Account"}{" "}
+                  ? "Sign In to Account"
+                  : "Create My Account"}{" "}
               <ArrowRight size={16} aria-hidden="true" />
             </button>
           </form>
 
+          {/* Security & Warranty Trust Strip */}
+          <div className="auth-trust-strip">
+            <span className="auth-trust-pill">
+              <ShieldCheck size={13} /> 256-Bit SSL
+            </span>
+            <span className="auth-trust-pill">
+              <Zap size={13} /> Instant UPI
+            </span>
+            <span className="auth-trust-pill">
+              <MapPin size={13} /> 3 BLR Showrooms
+            </span>
+          </div>
+
           <p className="auth-simple-switch">
             {tab === "signin" ? (
               <>
-                Don’t have an account?{" "}
+                Don’t have an account yet?{" "}
                 <button type="button" onClick={() => switchTab("signup")}>
-                  Create one
+                  Create one now
                 </button>
               </>
             ) : (
               <>
                 Already have an account?{" "}
                 <button type="button" onClick={() => switchTab("signin")}>
-                  Sign in
+                  Sign in here
                 </button>
               </>
             )}

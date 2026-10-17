@@ -8,6 +8,7 @@ import { sdk } from "./_core/sdk";
 import * as db from "./db";
 import { generateCleanDeviceCopy } from "./contentEngine";
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { decodeJwt } from "jose";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -83,22 +84,62 @@ export const appRouter = router({
       ctx.res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(ctx.req), maxAge: ONE_YEAR_MS });
       return { success: true, role: user.role, token } as const;
     }),
-    googleSignIn: publicProcedure.input(z.object({ email: z.string().email().max(320), name: z.string().min(2).max(80) })).mutation(async ({ input, ctx }) => {
-      const email = input.email.toLowerCase().trim();
-      const existing = await db.getUserByEmail(email);
-      const openId = existing?.openId || `google:${email}`;
-      await db.upsertUser({
-        openId,
-        name: input.name.trim(),
-        email,
-        loginMethod: "google",
-        lastSignedIn: new Date(),
-      });
-      const user = await db.getUserByEmail(email);
-      const token = await sdk.createSessionToken(openId, { name: input.name.trim(), expiresInMs: ONE_YEAR_MS });
-      ctx.res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(ctx.req), maxAge: ONE_YEAR_MS });
-      return { success: true, role: user?.role ?? "user", token } as const;
-    }),
+    googleSignIn: publicProcedure
+      .input(
+        z.object({
+          credential: z.string().optional(),
+          email: z.string().email().max(320).optional(),
+          name: z.string().max(120).optional(),
+          picture: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        let email = input.email;
+        let name = input.name || "";
+        let picture = input.picture;
+        let googleSub = "";
+
+        if (input.credential) {
+          try {
+            const payload = decodeJwt(input.credential) as {
+              email?: string;
+              name?: string;
+              picture?: string;
+              sub?: string;
+            };
+            if (payload?.email) {
+              email = payload.email;
+              name = payload.name || name;
+              picture = payload.picture || picture;
+              googleSub = payload.sub || "";
+            }
+          } catch (e) {
+            console.warn("[Google Auth] Error decoding token credential:", e);
+          }
+        }
+
+        if (!email) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Google account email is required." });
+        }
+
+        const cleanEmail = email.toLowerCase().trim();
+        const existing = await db.getUserByEmail(cleanEmail);
+        const openId = existing?.openId || (googleSub ? `google:${googleSub}` : `google:${cleanEmail}`);
+        const resolvedName = (name || cleanEmail.split("@")[0] || "Customer").trim();
+
+        await db.upsertUser({
+          openId,
+          name: resolvedName,
+          email: cleanEmail,
+          loginMethod: "google",
+          lastSignedIn: new Date(),
+        });
+
+        const user = await db.getUserByEmail(cleanEmail);
+        const token = await sdk.createSessionToken(openId, { name: resolvedName, expiresInMs: ONE_YEAR_MS });
+        ctx.res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(ctx.req), maxAge: ONE_YEAR_MS });
+        return { success: true, role: user?.role ?? "user", token, email: cleanEmail, name: resolvedName, picture } as const;
+      }),
     demoAdminSignIn: publicProcedure.mutation(async ({ ctx }) => {
       const openId = "local:demo-admin@iconnectblr.com";
       await db.upsertUser({
